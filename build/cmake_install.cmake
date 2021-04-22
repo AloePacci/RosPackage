@@ -131,6 +131,9 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/aloepacci/RosPackage/build/gtest/cmake_install.cmake")
+  include("/home/aloepacci/RosPackage/build/turtle_pid_control/cmake_install.cmake")
+  include("/home/aloepacci/RosPackage/build/planner/cmake_install.cmake")
+  include("/home/aloepacci/RosPackage/build/tutorial/cmake_install.cmake")
 
 endif()
 

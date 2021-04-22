@@ -1,0 +1,8 @@
+prefix=/home/aloepacci/RosPackage/devel
+
+Name: tutorial
+Description: Description of tutorial
+Version: 0.0.0
+Cflags: -I/home/aloepacci/RosPackage/devel/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime

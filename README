@@ -1,1 +1,9 @@
 Este repositorio es una copia de seguridad de mi paquete de ROS, creacion de paquetes y realización de trabajos
+
+
+Los comandos de git son 
+git add README
+git commit -m "mensaje"
+git push origin master
+
+

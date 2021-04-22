@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="stage_ros" name="map" type="stageros" args="$(find planner)/worlds/simulation.world"/>
+  <node pkg="planner" name="goto" type="go_to_goal.py"/>
+</launch>

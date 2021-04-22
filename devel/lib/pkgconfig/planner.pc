@@ -1,0 +1,8 @@
+prefix=/home/aloepacci/RosPackage/devel
+
+Name: planner
+Description: Description of planner
+Version: 0.0.0
+Cflags: -I/home/aloepacci/RosPackage/devel/include
+Libs: -L${prefix}/lib 
+Requires: rospy std_msgs geometry_msgs nav_msgs turtlesim tf message_runtime
