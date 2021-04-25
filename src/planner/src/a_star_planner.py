@@ -7,6 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from planner.srv import GoTo
 
+
+    
+
+
 class Planner:
 
     def __init__(self):
@@ -45,52 +49,87 @@ class Planner:
     def compute_path(self, start_cell, goal_cell):
         """Compute path."""
         path = []
-        start_cell[0]-=0.5
-        start_cell[1]-=0.5
-        path.append(start_cell)
+        start_cell[0]=int(round(start_cell[0]))
+        start_cell[1]=int(round(start_cell[1]))
 
-        apoint=[int(start_cell[0]), int(start_cell[1])]
-        ######################
-        # TODO: Implement A* #
-        ######################
-        g=np.ones((self.height, self.width))*(-1)  #npasos
-        px=np.ones((self.height, self.width))*(-1)   #celda padre
-        py=np.ones((self.height, self.width))*(-1)  #celda padre
-        print(apoint)
-        seen=np.zeros((self.height, self.width))
-        seen[apoint[0], apoint[1]]=1 #we mark start point as seen
-        counter=0 #number of steps
-        while apoint != goal_cell:
-            auxup=[apoint[0]-1,apoint[1]]
-            auxright=[apoint[0],apoint[1]+1]
-            auxdown=[apoint[0]+1,apoint[1]]
-            auxleft=[apoint[0],apoint[1]-1]
-            h=round(abs(goal_cell[0]-apoint[0])+abs(goal_cell[1]-apoint[1]))
-            g[apoint[0],apoint[1]]=counter
-            if self.map[auxup[0],auxup[1]]==1:
-                # este punto esta ocupado
-                seen[auxup[0],auxup[1]]=1
+        pointpos=start_cell
+
+        #declarations
+        self.cell_g=np.ones((self.height, self.width))*(-1)  #npasos
+        self.cell_h=np.ones((self.height, self.width))*(-1)  #distancia
+        self.cell_px=np.ones((self.height, self.width))*(-1)   #celda padre
+        self.cell_py=np.ones((self.height, self.width))*(-1)  #celda padre
+        self.cell_seen=np.zeros((self.height, self.width))
+        step=0
+        x=np.zeros(100)
+        y=np.zeros(100)
+      
+
+        #start point
+        self.cell_seen[start_cell[0], start_cell[1]]=1 #we mark start point as seen
+        self.cell_px[start_cell[0], start_cell[1]]=start_cell[0]   #celda padre
+        self.cell_py[start_cell[0], start_cell[1]]=start_cell[1]   #celda padre
+        self.cell_g[start_cell[0], start_cell[1]]=step
+        x[0]=start_cell[1]
+        y[0]=start_cell[0]
+
+        counter2=0
+        while ((pointpos[1] != goal_cell[1]) or (pointpos[0] != goal_cell[0])):
+            step=step+1
+            reiterate=True
+            #elegimos una celda que no sea pared como primera candidata.
+            if self.map[pointpos[0]+1,pointpos[1]]==0:
+                nextcell=[pointpos[0]+1,pointpos[1]] #por defecto va a ser arriba
             else:
-                if (g[auxup[0],auxup[1]]!=-1) & (g[auxup[0],auxup[1]]<counter):
-                    #ya hemos pasado por este punto
-                    a=0
+                if self.map[pointpos[0],pointpos[1]+1]==0:
+                    nextcell=[pointpos[0],pointpos[1]+1] #derecha
                 else:
-                    if round(abs(goal_cell[0]-auxup[0])+abs(goal_cell[1]-auxup[1]))<h:
-                        a=0
-                        #estamos mas cerca del destino
-            break
+                    if self.map[pointpos[0]-1,pointpos[1]]==0:
+                        nextcell=[pointpos[0]-1,pointpos[1]] #abajo
+                    else:
+                        nextcell=[pointpos[0],pointpos[1]-1] #izquierda, este es el peor de los casos. consideramos que no podemos estar en un lugar sin movimientos.
+            
+            while reiterate==True: # mientras no hayamos encontrado la mejor celda
+
+                #distancia inicial
+                h=abs(nextcell[0]-goal_cell[0])+abs(nextcell[1]-goal_cell[1])
+                
+                #buscamos una celda que sea mejor
+                if self.map[pointpos[0]+1,pointpos[1]]==0 and (abs(pointpos[0]+1-goal_cell[0])+abs(pointpos[1]-goal_cell[1]))<h:#arriba
+                    nextcell=[pointpos[0]+1,pointpos[1]]
+                else:
+                    if self.map[pointpos[0],pointpos[1]+1]==0 and (abs(pointpos[0]-goal_cell[0])+abs(pointpos[1]+1-goal_cell[1]))<h:#derecha
+                        nextcell=[pointpos[0],pointpos[1]+1] #derecha
+                    else:
+                        if self.map[pointpos[0]-1,pointpos[1]]==0 and (abs(pointpos[0]-1-goal_cell[0])+abs(pointpos[1]-goal_cell[1]))<h:#abajo
+                            nextcell=[pointpos[0]-1,pointpos[1]] #abajo
+                        else:
+                            if self.map[pointpos[0],pointpos[1]-1]==0 and (abs(pointpos[0]-goal_cell[0])+abs(pointpos[1]-1-goal_cell[1]))<h:#izquierda
+                                nextcell=[pointpos[0],pointpos[1]-1] #izquierda
+                            else:
+                                reiterate=False #parece ser la celda que promete estar mas cerca del objetivo
+                
+                if self.cell_seen[nextcell[0], nextcell[1]]==1:     #esta celda ya la hemos visto
+                    reiterate=True
+
+            self.cell_seen[nextcell[0], nextcell[1]]=1 #marcamos la celda como vista
+
+            x[step]=nextcell[1]  #la aniadimos a la lista
+            y[step]=nextcell[0]
+            pointpos=nextcell
+            print(pointpos)
+        print(goal_cell)
+
 
         ######################
         # End A*             #
         ######################
-        path.append(goal_cell)
-        # Print path
-        x = []
-        y = []
         
-        for point in path:
-            x.append(point[1])
-            y.append(point[0])
+        # Print path
+
+        
+        #for point in path:
+        path.append(goal_cell)
         
         image = np.flipud(self.map)
         plt.figure()
@@ -99,6 +138,7 @@ class Planner:
         plt.show()
         
         return path
+
 
     def goto(self):
         """Moves the robot to the goal."""
@@ -119,7 +159,7 @@ class Planner:
 
         path = self.compute_path(current_cell,goal_cell)
 
-        path2=[ [3, 2, 5], [12, 11, 11] ]
+        path2=[ [3], [12] ]
         counter=0
         state=False
         for point in path2:
