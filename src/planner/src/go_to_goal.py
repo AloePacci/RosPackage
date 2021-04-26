@@ -7,6 +7,37 @@ from math import pow, atan2, sqrt
 import tf.transformations
 from planner.srv import GoTo
 
+pi=3.141592653589793
+
+class pid:
+    def __init__(self, kp, ki, kd):
+        self.kp=kp
+        self.ki=ki
+        self.kd=kd
+        self.dererr=0.0
+        self.interr=0.0
+
+    def derivative(self, error):
+        a=self.dererr
+        self.dererr=error
+        return self.kd*(error-a)
+
+    def integral(self, error):
+        self.interr+=error
+        return self.interr * self.ki
+
+    def proportional(self, error):
+        return error*self.kp
+
+    def PD(self, error):
+        return self.proportional(error)+self.derivative(error)
+    
+    def PI(self, error):
+        return self.proportional(error)+self.integral(error)
+
+    def PID(self, error):
+        return self.proportional(error)+self.integral(error)+self.derivative(error)
+
 class Robot:
 
     def __init__(self):
@@ -22,6 +53,8 @@ class Robot:
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/odom',
                                                 Odometry, self.update_pose)
+        self.angularcontroller=pid(4.0,0.0,0.0)
+        self.positioncontroller=pid(0.5,0.01,0.01)
 
         self.pose = Pose()
         self.rate = rospy.Rate(10)
@@ -45,17 +78,19 @@ class Robot:
         return sqrt(pow((goal_pose.x - self.pose.x), 2) +
                     pow((goal_pose.y - self.pose.y), 2))
 
-    def linear_vel(self, goal_pose, constant=0.5):
-        
-        return constant * self.euclidean_distance(goal_pose)
+    def linear_vel(self, goal_pose):
+        return self.positioncontroller.PID(self.euclidean_distance(goal_pose))
 
     def steering_angle(self, goal_pose):
-        
-        return atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
+        angledif=atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x) - self.pose.theta
+        if angledif>pi:
+            angledif-=2*pi
+        if angledif<-pi:
+            angledif+=2*pi
+        return angledif
 
-    def angular_vel(self, goal_pose, constant=4):
-        
-        return constant * (self.steering_angle(goal_pose) - self.pose.theta)
+    def angular_vel(self, goal_pose):
+        return self.angularcontroller.PID(self.steering_angle(goal_pose))
 
     def goto_callback(self,req):
 
@@ -80,7 +115,10 @@ class Robot:
             # https://en.wikipedia.org/wiki/Proportional_control
 
             # Linear velocity in the x-axis.
-            vel_msg.linear.x = self.linear_vel(goal_pose)
+            if abs(self.steering_angle(goal_pose))<0.44:  #aprox 25 degrees
+                vel_msg.linear.x = self.linear_vel(goal_pose)
+            else:
+                vel_msg.linear.x = 0
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
 
