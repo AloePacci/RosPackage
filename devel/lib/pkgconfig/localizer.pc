@@ -1,0 +1,8 @@
+prefix=/home/aloepacci/RosPackage/devel
+
+Name: localizer
+Description: Description of localizer
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: rospy std_msgs geometry_msgs nav_msgs turtlesim tf message_runtime

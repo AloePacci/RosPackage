@@ -6,5 +6,6 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("turtle_pid_control")
+subdirs("localizer")
 subdirs("planner")
 subdirs("tutorial")
