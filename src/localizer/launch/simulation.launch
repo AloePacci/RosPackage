@@ -8,5 +8,6 @@
 	<node name="map_server" pkg="map_server" type="map_server" args="$(find localizer)/config/map.yaml" />
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find localizer)/config/config.rviz" />
 	<node pkg="tf" type="static_transform_publisher" name="map_broadcaster" args="0 0 0 0 0 0 1 map odom 100" />
+	<node name="localizer" pkg="localizer" type="localizer.py"/>
 
 </launch>
