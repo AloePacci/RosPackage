@@ -29,7 +29,7 @@ class Planner:
 
         self.pose = Pose()
         # Load map
-        self.map = np.genfromtxt('/home/aloepacci/RosPackage/src/planner/worlds/map.csv', delimiter=',')
+        self.map = np.genfromtxt('/home/aloepacci/RosPackage/src/planner/worlds/map.csv', sep=',')
         self.height = self.map.shape[0]
         self.width = self.map.shape[1]
         self.resolution = 1
@@ -149,7 +149,7 @@ class Planner:
         while True:
             while True:
                 goal_pose.x = int(input("Set your x goal: "))
-                goal_pose.y = int(input("Set your y goal: "))
+                goal_pose.y = int(input("Set your y goal: ")) #TODO add una secuencia de volver a pedir si la posicion esta fuera del rango del mapa, indicando dimensiones
                 if self.map[goal_pose.y,goal_pose.x] == 1:
                     print("esta celda esta ocupada")
                 else:

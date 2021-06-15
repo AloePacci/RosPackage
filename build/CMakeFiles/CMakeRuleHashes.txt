@@ -1,5 +1,6 @@
 # Hashes of file build rules.
 ca24a403ca95258bb4494340faa56494 /home/aloepacci/RosPackage/devel/include/planner/GoTo.h
+cd153fbae54f37c98a44edbc9c740e01 /home/aloepacci/RosPackage/devel/include/stage/xygoal.h
 a75b11e968bbd5d25ec5e316cca07010 /home/aloepacci/RosPackage/devel/include/turtle_pid_control/AddTwoInts.h
 2a3d3c4b03bb319e330afdce957a4258 /home/aloepacci/RosPackage/devel/include/turtle_pid_control/Num.h
 3a75f6e5f433438c04882497c8fefa75 /home/aloepacci/RosPackage/devel/include/turtle_pid_control/xygoal.h
@@ -7,6 +8,8 @@ f808c5ba58f229d10e298b1cc42d83a5 /home/aloepacci/RosPackage/devel/include/tutori
 12e55a51ab891b3611d5d039d95ca83c /home/aloepacci/RosPackage/devel/include/tutorial/Num.h
 226dea82d119cafcea52cf1e19b40f90 /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/planner/srv/_GoTo.py
 8f8b0f029ee27e9e61de46bcd195982f /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/planner/srv/__init__.py
+4d183f737dafb76f6586971eac7f239b /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/stage/srv/__init__.py
+df98a740b9fa4449d6b48f49a1553de9 /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/stage/srv/_xygoal.py
 09a44fd16e6eee5469b8c3fe0dcb2096 /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/turtle_pid_control/msg/_Num.py
 8d169d8a4a4fbc2ad2c372d607e83969 /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/turtle_pid_control/msg/__init__.py
 64c2fe92acffe750ba143b171e95baed /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/turtle_pid_control/srv/_AddTwoInts.py
@@ -17,12 +20,14 @@ a057e224afeded647a35b6a409bbf74e /home/aloepacci/RosPackage/devel/lib/python2.7/
 72aedf94ad3e10bbc3d9df9ba7df8ef4 /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/tutorial/srv/_AddTwoInts.py
 657246282be5a421e8f13d35303eee2b /home/aloepacci/RosPackage/devel/lib/python2.7/dist-packages/tutorial/srv/__init__.py
 26d014a16a3a210b16285b151fdea2a1 /home/aloepacci/RosPackage/devel/share/common-lisp/ros/planner/srv/GoTo.lisp
+b08df75d608d5ca69f34fc5e8ce5a5c1 /home/aloepacci/RosPackage/devel/share/common-lisp/ros/stage/srv/xygoal.lisp
 ab523681d6ecf8b1cf0df8b187149395 /home/aloepacci/RosPackage/devel/share/common-lisp/ros/turtle_pid_control/msg/Num.lisp
 085a337f5fc97f169c25bd61850f206d /home/aloepacci/RosPackage/devel/share/common-lisp/ros/turtle_pid_control/srv/AddTwoInts.lisp
 67309ca5c0d706fb8b3d9ccaf6046376 /home/aloepacci/RosPackage/devel/share/common-lisp/ros/turtle_pid_control/srv/xygoal.lisp
 edd1e279378b602748ed6b5af3c4fb7c /home/aloepacci/RosPackage/devel/share/common-lisp/ros/tutorial/msg/Num.lisp
 7c99dc04341fd5b1989801b6305ea516 /home/aloepacci/RosPackage/devel/share/common-lisp/ros/tutorial/srv/AddTwoInts.lisp
 03ae495a463e1cacee315dfc833afdbc /home/aloepacci/RosPackage/devel/share/gennodejs/ros/planner/srv/GoTo.js
+2d065e5d805f95583bca31d4010cdd8e /home/aloepacci/RosPackage/devel/share/gennodejs/ros/stage/srv/xygoal.js
 1843cea31b7a7b51e77b3ab7ed1440fe /home/aloepacci/RosPackage/devel/share/gennodejs/ros/turtle_pid_control/msg/Num.js
 6eb07ec39896f2b3d744cc49306a321d /home/aloepacci/RosPackage/devel/share/gennodejs/ros/turtle_pid_control/srv/AddTwoInts.js
 1244da889a1dffb2125c941b5ee3c842 /home/aloepacci/RosPackage/devel/share/gennodejs/ros/turtle_pid_control/srv/xygoal.js
@@ -30,6 +35,8 @@ edd1e279378b602748ed6b5af3c4fb7c /home/aloepacci/RosPackage/devel/share/common-l
 ff6389783423771d05ce4ff06f60be50 /home/aloepacci/RosPackage/devel/share/gennodejs/ros/tutorial/srv/AddTwoInts.js
 51943755e6e1b1c3e0d73b19d306d1fa /home/aloepacci/RosPackage/devel/share/roseus/ros/planner/manifest.l
 0e52f480f587b209aaa2061aa6fe895f /home/aloepacci/RosPackage/devel/share/roseus/ros/planner/srv/GoTo.l
+f2ed3167f5375eb1fdbcd1b2eaf1d767 /home/aloepacci/RosPackage/devel/share/roseus/ros/stage/manifest.l
+5455c3c75273a043a2e2beb6ecd13540 /home/aloepacci/RosPackage/devel/share/roseus/ros/stage/srv/xygoal.l
 3340373d56f822e673272952bb52e0c3 /home/aloepacci/RosPackage/devel/share/roseus/ros/turtle_pid_control/manifest.l
 fb985cb494ead3d785cb43ef9e0226b1 /home/aloepacci/RosPackage/devel/share/roseus/ros/turtle_pid_control/msg/Num.l
 f3f06e220338e88741a3b47ff6bc0d8f /home/aloepacci/RosPackage/devel/share/roseus/ros/turtle_pid_control/srv/AddTwoInts.l
@@ -44,6 +51,12 @@ ea035f57ca588fc61f2491e713796bf4 planner/CMakeFiles/planner_generate_messages_eu
 ea035f57ca588fc61f2491e713796bf4 planner/CMakeFiles/planner_generate_messages_lisp
 ea035f57ca588fc61f2491e713796bf4 planner/CMakeFiles/planner_generate_messages_nodejs
 ea035f57ca588fc61f2491e713796bf4 planner/CMakeFiles/planner_generate_messages_py
+1f83ce9654afc8c11d8809bf3831638c stage/CMakeFiles/_stage_generate_messages_check_deps_xygoal
+6b1f4dec084c9f646e402ac39fd7d28b stage/CMakeFiles/stage_generate_messages_cpp
+6b1f4dec084c9f646e402ac39fd7d28b stage/CMakeFiles/stage_generate_messages_eus
+6b1f4dec084c9f646e402ac39fd7d28b stage/CMakeFiles/stage_generate_messages_lisp
+6b1f4dec084c9f646e402ac39fd7d28b stage/CMakeFiles/stage_generate_messages_nodejs
+6b1f4dec084c9f646e402ac39fd7d28b stage/CMakeFiles/stage_generate_messages_py
 8025804bbb2c02edcd4cb13513e84bc2 turtle_pid_control/CMakeFiles/_turtle_pid_control_generate_messages_check_deps_Num
 51c04f1bcc76dd09d6d71a23a14a01e7 turtle_pid_control/CMakeFiles/_turtle_pid_control_generate_messages_check_deps_xygoal
 5d50b5db1e48be752704a82f7586c6e7 turtle_pid_control/CMakeFiles/turtle_pid_control_generate_messages_cpp

@@ -1,0 +1,12 @@
+<launch>
+  <arg name="world" default="1" />
+  <param name="/use_sim_time" value="true"/>
+  <node pkg="stage_ros" name="map" type="stageros" args="$(find stage)/worlds/world$(arg world)/simulation.world"/>
+  <node name="teleop_key" pkg="turtlesim" type="turtle_teleop_key">
+    <remap from="/turtle1/cmd_vel" to="/cmd_vel" />
+  </node>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find stage)/worlds/world$(arg world)/map.yaml"/>
+  <node pkg="tf" type="static_transform_publisher" name="map_broadcaster" args="0 0 0 0 0 0 1 map odom 100" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find stage)/worlds/world$(arg world)/config.rviz" />
+  <node name="rrt_algorithm" pkg="stage" type="rrt_planner.py"/>
+</launch>

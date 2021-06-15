@@ -1,0 +1,5 @@
+Ejecutar como:
+roslaunch stage world.launch world:=1
+
+
+rosrun turtlesim turtle_teleop_key /turtle1/cmd_vel:=/cmd_vel

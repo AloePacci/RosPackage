@@ -1,0 +1,8 @@
+prefix=/home/aloepacci/RosPackage/install
+
+Name: stage
+Description: Description of stage
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 

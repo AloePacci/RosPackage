@@ -1,2 +1,2 @@
-localizer:planner:turtle_pid_control:tutorial
+localizer:planner:stage:turtle_pid_control:tutorial
 -DCATKIN_DEVEL_PREFIX=/home/aloepacci/RosPackage/devel -DCMAKE_INSTALL_PREFIX=/home/aloepacci/RosPackage/install -G Unix Makefiles

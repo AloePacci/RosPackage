@@ -1,0 +1,97 @@
+define floorplan model
+(
+  # color de las paredes
+  color "gray30"
+
+  # el mapa tendra un borde para que el robot no se salga
+  boundary 1
+  
+  #no necesitamos una indicacion de brujula en el mapa (apunta al este (x+))
+  gui_nose 1
+  #queremos ver una malla
+  gui_grid 1
+  #no podemos movernos por el mapa, la vista se queda fija
+  gui_move 0
+  #remarcar el modelo, inutil para un mapa
+  gui_outline 0
+  #0 para que el mapa no pueda ser agarrado
+  gripper_return 0
+  #respuesta del sensor fiducial
+  fiducial_return 0
+  #si es negativo, no se puede ver con sensores visuales
+  ranger_return 1
+)
+
+
+#añadimos mas valores a nuestro mundo creando el objeto
+floorplan
+(
+   name "Map"
+   bitmap "map.png" #puede ser jpeg, gif o png, 
+   #las areas negras se renderizan, el resto se quedan en blanco
+   size [100 100 1] #size en metros
+   pose [ 0.00 0.000 0.000 0.000 ]
+)
+
+window
+(
+  size [ 800 800 ] # in pixels
+  scale 6.75   # pixels per meter
+  center [ 0.0  0.0 ]
+  rotate [ 0.000  0.000 ]
+  			
+  show_data 1              # 1=on 0=off
+)
+
+#interval_sim 100 #cuantos ms hay entre actualizacion de la ventana
+#interval_real 100 #cuantos ms reales han pasado de simulacion entre actualizacion
+
+#definicion del robot
+
+define robot position
+(
+      size [1.25 1 1]
+
+      # centre of rotation offset
+      origin [-0.050 0.000 0.000 0.000]
+
+      drive "diff" #tipo de conduccion
+
+      # the shape of Bigbob
+
+      block
+      (
+            points 6
+            point[5] [0 0]
+            point[4] [0 1]
+            point[3] [0.75 1]
+            point[2] [1 0.75]
+            point[1] [1 0.25]
+            point[0] [0.75 0]
+            z [0 1]
+      )
+
+      block
+      (
+            points 4
+            point[3] [1 0.75]
+            point[2] [1.25 0.75]
+            point[1] [1.25 0.625]
+            point[0] [1 0.625]
+            z [0 0.5]
+      )
+
+      block
+      (
+            points 4
+            point[3] [1 0.375]
+            point[2] [1.25 0.375]
+            point[1] [1.25 0.25]
+            point[0] [1 0.25]
+            z [0 0.5]
+      )
+)
+
+#instanciamos el robot
+
+robot( pose [ -46 46 0.000 00.000 ] name "era" color "blue")
