@@ -2,6 +2,7 @@
 #include "stage/xygoal.h"
 #include "geometry_msgs/Twist.h"
 #include "turtlesim/Pose.h"
+#include "nav_msgs/Odometry.h"
 #include "math.h"
 
 
@@ -25,8 +26,8 @@ bool go_to_destination(stage::xygoal::Request  &req, stage::xygoal::Response &re
   command.linear.z=0;
   command.angular.x=0;
   command.angular.y=0;
-  ros::Publisher command_sender = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1000);
-  ros::Subscriber position_updater = n.subscribe("/turtle1/pose", 1000, read_pose);
+  ros::Publisher command_sender = n.advertise<geometry_msgs::Twist>("cmd_vel", 1000);
+  ros::Subscriber position_updater = n.subscribe("/odom", 1000, read_pose);
   ros::spinOnce();
   ROS_INFO("actual pos: x=%f, y=%f, theta=%f", data.x, data.y, data.theta);
   ROS_INFO("goal pos: x=%f, y=%f, theta=%f", req.x, req.y, angle);
@@ -47,9 +48,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "controlador");
   ros::NodeHandle n;
   ros::ServiceServer service = n.advertiseService("controlador", go_to_destination);
-
   ROS_INFO("Ready to drive");
   ros::spin();
-
   return 0;
 }
