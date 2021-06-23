@@ -285,19 +285,6 @@ gtest/fast:
 .PHONY : gtest/fast
 
 #=============================================================================
-# Target rules for targets named controlador
-
-# Build rule for target.
-controlador: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 controlador
-.PHONY : controlador
-
-# fast build rule for target.
-controlador/fast:
-	$(MAKE) -f stage/CMakeFiles/controlador.dir/build.make stage/CMakeFiles/controlador.dir/build
-.PHONY : controlador/fast
-
-#=============================================================================
 # Target rules for targets named stage_genpy
 
 # Build rule for target.
@@ -1827,7 +1814,6 @@ help:
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
-	@echo "... controlador"
 	@echo "... stage_genpy"
 	@echo "... stage_gennodejs"
 	@echo "... stage_generate_messages_py"

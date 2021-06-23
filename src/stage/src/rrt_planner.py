@@ -16,10 +16,9 @@ max_iterations=int(rospy.get_param("/rrt_algorithm/max_iterations", 10000))
 branch_size=int(rospy.get_param('/rrt_algorithm/branch_size', 1)) #size en metros
 tolerancia=int(rospy.get_param('/rrt_algorithm/tolerancia', 1)) #size en metros
 debug=int(rospy.get_param('/rrt_algorithm/debug_level', 5)) #nivel de debug
+print_map=int(rospy.get_param('/rrt_algorithm/print_map', 0)) #nivel de debug
 
 def debug_level(number):
-    if number==0:
-        return rospy.NONE
     if number==1:
         return rospy.FATAL
     if number==2:
@@ -55,6 +54,8 @@ class Planner:
 
         #publicamos el arbol
         self.tree_publisher = rospy.Publisher('/rrt_gen_marker', Marker, queue_size=100)
+        self.path_publisher = rospy.Publisher('/rrt_path_marker', Marker, queue_size=100)
+        
         
         
     def update_pose(self, data):
@@ -109,16 +110,18 @@ class Planner:
                     counter=1
                     counter2+=1   
             self.map=aux
-        #np.savetxt("foo.csv", self.map, delimiter=",",fmt='%d')
-        #image = np.flipud(self.map)
-        #plt.figure()
-        #plt.imshow(image, cmap=plt.get_cmap('binary'))
-        #plt.show()
+        if(print_map!=0):
+            #np.savetxt("foo.csv", self.map, delimiter=",",fmt='%d')
+            image = np.flipud(self.map)
+            plt.figure()
+            plt.imshow(image, cmap=plt.get_cmap('binary'))
+            plt.show()
 
     def destination_update(self, data):
         self.x_goal=data.point.x
         self.y_goal=data.point.y
         rospy.loginfo("nueva orden, ve a %f %f", self.x_goal, self.y_goal)
+        self.clean_marks()
         self.found=False #suponemos que no encontramos el punto
         self.plan()
 
@@ -142,6 +145,12 @@ class Planner:
                 break
         rospy.loginfo("se han creado %d ramas de las que %d son validas y %d invalidas", self.n_iteraciones, self.counter_valid,self.counter_invalid)
         self.actualiza_ramas()
+        if self.found==True:
+            self.aproximacion_final()
+            self.call_service()
+        else:
+            p_cercano=self.vecinomasproximo(Rama(self.x_goal,self.y_goal))
+            rospy.loginfo("no se ha encontrado el camino a [%f , %f], punto mas cercano [%f , %f] pruebe a incrementar el numero de iteraciones, actualmente %d", self.x_goal, self.y_goal, p_cercano.x, p_cercano.y, max_iterations)
             
         
             
@@ -166,17 +175,6 @@ class Planner:
         if self.dist(qnear, Rama(self.x_goal, self.y_goal))<tolerancia:
             return True
         return False
-
-
-        """
-        if Nuevaconfiguracion(qrand,qnear,qnew):
-            AddadeVertice(arbol,qnew)
-            if qnew==qrand:
-                return alcanzado
-            else:
-                return avanzado
-        else:
-            devuelve rechazado"""
 
     def rama_valida(self, qnear, qnew):
         
@@ -248,20 +246,10 @@ class Planner:
         Marker_line=Marker()
         Marker_line.header.frame_id = "map"
         Marker_line.header.stamp = rospy.Time()
-        Marker_line.ns = "my_namespace"
-        Marker_line.id = 0
         Marker_line.type = Marker.LINE_LIST #check msg info para ver que se refiere a lineas
         Marker_line.action = Marker.ADD #0 para add 3 para delete
-        Marker_line.pose.position.x = 1
-        Marker_line.pose.position.y = 1
-        Marker_line.pose.position.z = 1
-        Marker_line.pose.orientation.x = 0.0
-        Marker_line.pose.orientation.y = 0.0
-        Marker_line.pose.orientation.z = 0.0
         Marker_line.pose.orientation.w = 1.0
         Marker_line.scale.x = 0.2
-        Marker_line.scale.y = 0.1
-        Marker_line.scale.z = 0.1
         Marker_line.color.a = 1.0#  Don't forget to set the alpha!
         Marker_line.color.r = 0.0
         Marker_line.color.g = 1.0
@@ -270,19 +258,84 @@ class Planner:
             p1=Point()
             p2=Point()
             if i.padre != None:
-                p1.x=i.padre.x-1
-                p1.y=i.padre.y-1
+                p1.x=i.padre.x
+                p1.y=i.padre.y
             else:
-                p1.x=i.x-1
-                p1.y=i.y-1
-            p1.z=0.2
-            p2.x=i.x-1
-            p2.y=i.y-1
-            p2.z=0.5
+                p1.x=i.x
+                p1.y=i.y
+            p1.z=0.3
+            p2.x=i.x
+            p2.y=i.y
+            p2.z=0.3
             #print(["point",p1.x,p1.y,p2.x,p2.y])
             Marker_line.points.append(p1)
             Marker_line.points.append(p2)
         self.tree_publisher.publish(Marker_line)
+
+    def aproximacion_final(self):
+        Marker_line=Marker()
+        Marker_line.header.frame_id = "map"
+        Marker_line.header.stamp = rospy.Time()
+        Marker_line.type = Marker.LINE_LIST #check msg info para ver que se refiere a lineas
+        Marker_line.action = Marker.ADD #0 para add 3 para delete
+        Marker_line.pose.orientation.w = 1.0
+        Marker_line.scale.x = 0.18
+        Marker_line.color.a = 1.0#  Don't forget to set the alpha!
+        Marker_line.color.r = 1.0
+        Marker_line.color.g = 0.0
+        Marker_line.color.b = 0.0
+        rama_i_1=Rama(self.x_goal, self.y_goal)
+        rama_i_2=self.Arbol[-1]
+        self.Path=[[rama_i_1.x, rama_i_1.y]]
+        while True:
+            self.Path.append([rama_i_2.x, rama_i_2.y])
+            p1=Point()
+            p2=Point()
+            p1.x=rama_i_1.x
+            p1.y=rama_i_1.y
+            p1.z=0.4
+            p2.x=rama_i_2.x
+            p2.y=rama_i_2.y
+            p2.z=0.4
+            #print(["point",p1.x,p1.y,p2.x,p2.y])
+            Marker_line.points.append(p1)
+            Marker_line.points.append(p2)
+            rama_i_1=rama_i_2
+            
+            if rama_i_2.padre == None: #hemos llegado al primer nodo, salimos
+                break
+            rama_i_2=rama_i_2.padre
+        self.Path.reverse()
+        self.path_publisher.publish(Marker_line)
+
+
+    def clean_marks(self):
+        void_Marker=Marker()
+        void_Marker.action =  Marker.DELETEALL #0 para add 3 para delete
+        self.path_publisher.publish(void_Marker)
+        self.tree_publisher.publish(void_Marker)
+
+
+    def call_service(self):
+        rospy.wait_for_service('pure_pursuit')
+        x=[]
+        y=[]
+        state=False
+        rospy.loginfo("Saliendo!")
+        for i in self.Path:
+            x.append(i[0])
+            y.append(i[1])
+        try:
+            control_service = rospy.ServiceProxy('pure_pursuit', xygoal)
+            resp1 = control_service(x, y)
+            
+            while state==False:
+                state=resp1.reach
+            
+        except rospy.ServiceException as e:
+            rospy.logfatal("Service call failed: %s",e)
+        pass
+        rospy.loginfo("Hemos llegado!")
 
         
 if __name__ == '__main__':

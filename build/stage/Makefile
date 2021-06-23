@@ -168,21 +168,6 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-stage/CMakeFiles/controlador.dir/rule:
-	cd /home/aloepacci/RosPackage/build && $(MAKE) -f CMakeFiles/Makefile2 stage/CMakeFiles/controlador.dir/rule
-.PHONY : stage/CMakeFiles/controlador.dir/rule
-
-# Convenience name for target.
-controlador: stage/CMakeFiles/controlador.dir/rule
-
-.PHONY : controlador
-
-# fast build rule for target.
-controlador/fast:
-	cd /home/aloepacci/RosPackage/build && $(MAKE) -f stage/CMakeFiles/controlador.dir/build.make stage/CMakeFiles/controlador.dir/build
-.PHONY : controlador/fast
-
-# Convenience name for target.
 stage/CMakeFiles/stage_genpy.dir/rule:
 	cd /home/aloepacci/RosPackage/build && $(MAKE) -f CMakeFiles/Makefile2 stage/CMakeFiles/stage_genpy.dir/rule
 .PHONY : stage/CMakeFiles/stage_genpy.dir/rule
@@ -587,33 +572,6 @@ std_msgs_generate_messages_py/fast:
 	cd /home/aloepacci/RosPackage/build && $(MAKE) -f stage/CMakeFiles/std_msgs_generate_messages_py.dir/build.make stage/CMakeFiles/std_msgs_generate_messages_py.dir/build
 .PHONY : std_msgs_generate_messages_py/fast
 
-src/controlador.o: src/controlador.cpp.o
-
-.PHONY : src/controlador.o
-
-# target to build an object file
-src/controlador.cpp.o:
-	cd /home/aloepacci/RosPackage/build && $(MAKE) -f stage/CMakeFiles/controlador.dir/build.make stage/CMakeFiles/controlador.dir/src/controlador.cpp.o
-.PHONY : src/controlador.cpp.o
-
-src/controlador.i: src/controlador.cpp.i
-
-.PHONY : src/controlador.i
-
-# target to preprocess a source file
-src/controlador.cpp.i:
-	cd /home/aloepacci/RosPackage/build && $(MAKE) -f stage/CMakeFiles/controlador.dir/build.make stage/CMakeFiles/controlador.dir/src/controlador.cpp.i
-.PHONY : src/controlador.cpp.i
-
-src/controlador.s: src/controlador.cpp.s
-
-.PHONY : src/controlador.s
-
-# target to generate assembly for a file
-src/controlador.cpp.s:
-	cd /home/aloepacci/RosPackage/build && $(MAKE) -f stage/CMakeFiles/controlador.dir/build.make stage/CMakeFiles/controlador.dir/src/controlador.cpp.s
-.PHONY : src/controlador.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -623,7 +581,6 @@ help:
 	@echo "... install/strip"
 	@echo "... install/local"
 	@echo "... rebuild_cache"
-	@echo "... controlador"
 	@echo "... stage_genpy"
 	@echo "... stage_gennodejs"
 	@echo "... stage_generate_messages_py"
@@ -655,9 +612,6 @@ help:
 	@echo "... stage_generate_messages_lisp"
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... std_msgs_generate_messages_py"
-	@echo "... src/controlador.o"
-	@echo "... src/controlador.i"
-	@echo "... src/controlador.s"
 .PHONY : help
 
 

@@ -16,7 +16,7 @@ define robot position
   size [0.350 0.350 0.250]
   origin [-0.050 0.000 0.000 0.000]
   gui_nose 1
-  drive "diff"
+  drive "omni" #"diff", "omni" or "car"
   topurg(pose [ 0.050 0.000 0.000 0.000 ])
 )
 
@@ -30,6 +30,8 @@ define floorplan model
 
   gui_nose 0
   gui_grid 0
+  #no podemos movernos por el mapa, la vista se queda fija
+  gui_move 0
 
   gui_outline 0
   gripper_return 0

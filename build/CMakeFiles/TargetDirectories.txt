@@ -38,7 +38,6 @@
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/install/strip.dir
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/install/local.dir
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/rebuild_cache.dir
-/home/aloepacci/RosPackage/build/stage/CMakeFiles/controlador.dir
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/stage_genpy.dir
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/stage_gennodejs.dir
 /home/aloepacci/RosPackage/build/stage/CMakeFiles/stage_generate_messages_py.dir

@@ -290,7 +290,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "gtest/googlemock/CMakeFiles/gmock.dir/DependInfo.cmake"
   "gtest/googlemock/gtest/CMakeFiles/gtest_main.dir/DependInfo.cmake"
   "gtest/googlemock/gtest/CMakeFiles/gtest.dir/DependInfo.cmake"
-  "stage/CMakeFiles/controlador.dir/DependInfo.cmake"
   "stage/CMakeFiles/stage_genpy.dir/DependInfo.cmake"
   "stage/CMakeFiles/stage_gennodejs.dir/DependInfo.cmake"
   "stage/CMakeFiles/stage_generate_messages_py.dir/DependInfo.cmake"

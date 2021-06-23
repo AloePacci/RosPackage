@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::stage::xygoal > {
   static const char* value()
   {
-    return "d19ef5ce3bf2af44ecc2f565e73d87ee";
+    return "8cd126f9c228a58c5310ae0dba804564";
   }
 
   static const char* value(const ::stage::xygoal&) { return value(); }

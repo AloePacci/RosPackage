@@ -203,7 +203,3 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-add_executable(controlador src/controlador.cpp)
-target_link_libraries(controlador ${catkin_LIBRARIES})
-add_dependencies(controlador stage_gencpp)

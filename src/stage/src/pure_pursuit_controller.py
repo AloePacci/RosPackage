@@ -1,142 +1,198 @@
 #!/usr/bin/env python
 import rospy
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Point
 from turtlesim.msg import Pose
 from nav_msgs.msg import Odometry
-from math import pow, atan2, sqrt
+from math import pow, atan2, sqrt, atan, cos, sin
 import tf.transformations
-from planner.srv import GoTo
+from stage.srv import xygoal
+from visualization_msgs.msg import Marker
+
 
 pi=3.141592653589793
+distancia_lookahead=float(rospy.get_param('/pure_pursuit_controller/lookahead', 1.0)) #distancia lookahead en metros
+debug=int(rospy.get_param('/pure_pursuit_controller/debug_level', 5)) #nivel de debug
+velocidad= float(rospy.get_param('/pure_pursuit_controller/velocidad', 0.5))
+def debug_level(number):
+    if number==0:
+        return rospy.NONE
+    if number==1:
+        return rospy.FATAL
+    if number==2:
+        return rospy.ERROR
+    if number==3:
+        return rospy.INFO
+    if number==4:
+        return rospy.WARN
+    if number==5:
+        return rospy.DEBUG
 
-class pid:
-    def __init__(self, kp, ki, kd):
-        self.kp=kp
-        self.ki=ki
-        self.kd=kd
-        self.dererr=0.0
-        self.interr=0.0
-
-    def derivative(self, error):
-        a=self.dererr
-        self.dererr=error
-        return self.kd*(error-a)
-
-    def integral(self, error):
-        self.interr+=error
-        return self.interr * self.ki
-
-    def proportional(self, error):
-        return error*self.kp
-
-    def PD(self, error):
-        return self.proportional(error)+self.derivative(error)
-    
-    def PI(self, error):
-        return self.proportional(error)+self.integral(error)
-
-    def PID(self, error):
-        return self.proportional(error)+self.integral(error)+self.derivative(error)
+class node:
+    def __init__(self, x, y, last):
+        self.x=x
+        self.y=y
+        if last!=None:
+            self.theta=atan2(y-last.y, x-last.x)
+        else:
+            self.theta=0
 
 class Robot:
 
     def __init__(self):
-        # Creates a node with name 'robot_controller' and make sure it is a
-        # unique node (using anonymous=True).
-        rospy.init_node('robot_controller', anonymous=True)
+        # Inicializamos el nodo.
+        rospy.init_node('robot_controller', anonymous=True, log_level=debug_level(debug))
 
-        # Publisher which will publish to the topic '/cmd_vel'.
-        self.velocity_publisher = rospy.Publisher('/cmd_vel',
-                                                  Twist, queue_size=10)
+        # publicamos la velocidad en el topic /cmd_vel
+        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.pos_publisher = rospy.Publisher('/rrt_pos_marker', Marker, queue_size=100)
 
-        # A subscriber to the topic '/odom'. self.update_pose is called
-        # when a message of type Pose is received.
-        self.pose_subscriber = rospy.Subscriber('/odom',
-                                                Odometry, self.update_pose)
-        self.angularcontroller=pid(4.0,0.0,0.0)
-        self.positioncontroller=pid(0.5,0.01,0.01)
+        # suscripcion al topic de odom, para obtener la posicion del robot
+        self.pose_subscriber = rospy.Subscriber('/odom', Odometry, self.update_pose)
 
-        self.pose = Pose()
+        # servicio para la comunicacion con el planificador
+        self.goal_srv = rospy.Service('pure_pursuit', xygoal, self.pp_callback)
+
+        #inicializamos otras variables
         self.rate = rospy.Rate(10)
+        self.pose=Pose()
+        self.punto_mas_cercano=Pose()
 
-        self.goal_srv = rospy.Service('goto', GoTo, self.goto_callback)
 
     def update_pose(self, data):
-        """Callback function which is called when a new message of type Pose is
-        received by the subscriber."""
+        """funcion para actualizar la posicion"""
         
-        self.pose.x = round(data.pose.pose.position.x, 4)
-        self.pose.y = round(data.pose.pose.position.y, 4)
+        self.pose.x = data.pose.pose.position.x
+        self.pose.y = data.pose.pose.position.y
         
         orientation = [data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w]
         (_,_,yaw) = tf.transformations.euler_from_quaternion(orientation)
         
         self.pose.theta = yaw
 
-    def euclidean_distance(self, goal_pose):
-        """Euclidean distance between current pose and the goal."""
-        return sqrt(pow((goal_pose.x - self.pose.x), 2) +
-                    pow((goal_pose.y - self.pose.y), 2))
 
-    def linear_vel(self, goal_pose):
-        return self.positioncontroller.PID(self.euclidean_distance(goal_pose))
+    def pp_callback(self,req):
 
-    def steering_angle(self, goal_pose):
-        angledif=atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x) - self.pose.theta
-        if angledif>pi:
-            angledif-=2*pi
-        if angledif<-pi:
-            angledif+=2*pi
-        return angledif
-
-    def angular_vel(self, goal_pose):
-        return self.angularcontroller.PID(self.steering_angle(goal_pose))
-
-    def goto_callback(self,req):
-
-        goal_pose = Pose()
-        goal_pose.x = req.x-9.5
-        goal_pose.y = 7.5-req.y
-
-        print('Going to goal: ' + str(goal_pose.x) + ',' + str(goal_pose.y))    
-         
-        self.move2goal(goal_pose, req.dist_tolerance)
-
+        x=req.x
+        y=req.y
+        self.path=[node(x[0],y[0],None)]
+        for i in range(1,len(x)):
+            self.path.append(node(x[i],y[i],self.path[i-1]))
+        self.move2goal()      
         return True
 
-    def move2goal(self, goal_pose, distance_tolerance):
+    def distancia(self, goal):
+        return sqrt(pow(goal.x-self.pose.x,2)+pow(goal.y-self.pose.y,2))
+
+    def distancia_recta(self, recta):
+        #transformamos a los ejes del robot
+        x=recta.x-self.pose.x
+        y=recta.y-self.pose.y
+        m=atan(recta.theta) #pendiente de la recta
+        b=y-m*x #corte al eje x de la recta
+        self.punto_mas_cercano.x=-b/(m+1/m) #x del punto mas cercano al robot
+        self.punto_mas_cercano.y=m*self.punto_mas_cercano.x+b
+        distancia_recta=sqrt(pow(self.punto_mas_cercano.x,2)+pow(self.punto_mas_cercano.y,2)) #este numero es siempre positivo, cuando queramos girar hacia el otro
+        return distancia_recta
+
+    def find_recta(self):
+        objetivo=Point()
+        objetivo.x=self.punto_mas_cercano.x
+        objetivo.y=self.punto_mas_cercano.y
+        angle=atan2(objetivo.y,objetivo.x)
+        angle= angle - self.pose.theta
+        return angle
+        
+    def calcular_giro(self,recta):
+        a=sqrt(pow(self.punto_mas_cercano.x,2)+pow(self.punto_mas_cercano.y,2))
+        d=sqrt(pow(distancia_lookahead,2)-pow(a,2)) # en el if que llama a esta funcion se comprueba que distancia_lookahead>a en magnitud
+        objetivo=Point()
+        objetivo.x=self.punto_mas_cercano.x+d*cos(recta.theta)
+        objetivo.y=self.punto_mas_cercano.y+d*sin(recta.theta)
+        objetivo.z=atan2(objetivo.y,objetivo.x)
+
+        #transformamos a los ejes del robot
+
+        distancia_x=distancia_lookahead*cos(self.pose.theta-objetivo.z)
+        distancia_y=distancia_lookahead*sin(self.pose.theta-objetivo.z)
+
+        #por geometria
+
+        
+        if self.pose.theta-objetivo.z >= 0:
+            curbatura= -2*distancia_x/pow(distancia_lookahead,2)
+        else:
+            curbatura= 2*distancia_x/pow(distancia_lookahead,2) #negativo porque el giro debe ser a la derecha (negativo)
+
+        return curbatura
+
+    def move2goal(self):
         """Moves the robot to the goal."""
         
         vel_msg = Twist()
 
-        while self.euclidean_distance(goal_pose) >= distance_tolerance:
+        self.pos_marker=Marker()
+        self.lp=Point() #punto para pintar la posicion
+        self.lp.x=self.pose.x
+        self.lp.y=self.pose.y
+        self.lp.z=0.5
+        for pos in self.path: #recorremos todos los puntos
+            print("nuevo punto")
+            while self.distancia(pos) >= distancia_lookahead: #mientras no lleguemos al punto objetivo con la distancia lookahead
+                distancia_recta=self.distancia_recta(pos)
+                if distancia_recta > distancia_lookahead:#estamos muy lejos, hay que rectificar, un control proporcional para volver a la recta            
+                    angulo=self.find_recta()
+                    print(["rectifica", angulo])
+                else:
+                    angulo=self.calcular_giro(pos)
+                    print([angulo])
+                
+                
+                vel_msg.linear.x = velocidad
+                vel_msg.linear.y = 0
+                vel_msg.linear.z = 0
 
-            # Porportional controller.
-            # https://en.wikipedia.org/wiki/Proportional_control
+                # Angular velocity in the z-axis.
+                vel_msg.angular.x = 0
+                vel_msg.angular.y = 0
+                vel_msg.angular.z = angulo
 
-            # Linear velocity in the x-axis.
-            if abs(self.steering_angle(goal_pose))<0.44:  #aprox 25 degrees
-                vel_msg.linear.x = self.linear_vel(goal_pose)
-            else:
-                vel_msg.linear.x = 0
-            vel_msg.linear.y = 0
-            vel_msg.linear.z = 0
+                # Publishing our vel_msg
+                self.velocity_publisher.publish(vel_msg)
 
-            # Angular velocity in the z-axis.
-            vel_msg.angular.x = 0
-            vel_msg.angular.y = 0
-            vel_msg.angular.z = self.angular_vel(goal_pose)
+                #imprime la posicion
+                self.print_pos()
 
-            # Publishing our vel_msg
-            self.velocity_publisher.publish(vel_msg)
+                # Publish at the desired rate.
+                self.rate.sleep()
 
-            # Publish at the desired rate.
-            self.rate.sleep()
-
-        # Stopping our robot after the movement is over.
+        # paramos el robot cuando hemos llegado
         vel_msg.linear.x = 0
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
+
+    def print_pos(self):
+    
+        self.pos_marker.header.frame_id = "map"
+        self.pos_marker.header.stamp = rospy.Time()
+        self.pos_marker.type = Marker.LINE_LIST #check msg info para ver que se refiere a lineas
+        self.pos_marker.action = Marker.ADD #0 para add 3 para delete
+        self.pos_marker.pose.orientation.w = 1.0
+        self.pos_marker.scale.x = 0.08
+        self.pos_marker.color.a = 1.0#  Don't forget to set the alpha!
+        self.pos_marker.color.r = 0.0
+        self.pos_marker.color.g = 0.0
+        self.pos_marker.color.b = 1.0
+        p2=Point()
+        p2.x=self.pose.x
+        p2.y=self.pose.y
+        p2.z=0.5
+        #print(["point",p1.x,p1.y,p2.x,p2.y])
+        self.pos_marker.points.append(self.lp)
+        self.pos_marker.points.append(p2)
+        self.pos_publisher.publish(self.pos_marker)
+        self.lp=p2
+        self.rate.sleep()
+
 
 if __name__ == '__main__':
     try:

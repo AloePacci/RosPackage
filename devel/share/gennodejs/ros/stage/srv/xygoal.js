@@ -29,13 +29,13 @@ class xygoalRequest {
         this.x = initObj.x
       }
       else {
-        this.x = 0.0;
+        this.x = [];
       }
       if (initObj.hasOwnProperty('y')) {
         this.y = initObj.y
       }
       else {
-        this.y = 0.0;
+        this.y = [];
       }
     }
   }
@@ -43,9 +43,9 @@ class xygoalRequest {
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type xygoalRequest
     // Serialize message field [x]
-    bufferOffset = _serializer.float32(obj.x, buffer, bufferOffset);
+    bufferOffset = _arraySerializer.float32(obj.x, buffer, bufferOffset, null);
     // Serialize message field [y]
-    bufferOffset = _serializer.float32(obj.y, buffer, bufferOffset);
+    bufferOffset = _arraySerializer.float32(obj.y, buffer, bufferOffset, null);
     return bufferOffset;
   }
 
@@ -54,14 +54,17 @@ class xygoalRequest {
     let len;
     let data = new xygoalRequest(null);
     // Deserialize message field [x]
-    data.x = _deserializer.float32(buffer, bufferOffset);
+    data.x = _arrayDeserializer.float32(buffer, bufferOffset, null)
     // Deserialize message field [y]
-    data.y = _deserializer.float32(buffer, bufferOffset);
+    data.y = _arrayDeserializer.float32(buffer, bufferOffset, null)
     return data;
   }
 
   static getMessageSize(object) {
-    return 8;
+    let length = 0;
+    length += 4 * object.x.length;
+    length += 4 * object.y.length;
+    return length + 8;
   }
 
   static datatype() {
@@ -71,14 +74,14 @@ class xygoalRequest {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'ff8d7d66dd3e4b731ef14a45d38888b6';
+    return '462ac0ba687f22c2e73c0ec0413e0202';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    float32 x
-    float32 y
+    float32[] x
+    float32[] y
     
     `;
   }
@@ -93,14 +96,14 @@ class xygoalRequest {
       resolved.x = msg.x;
     }
     else {
-      resolved.x = 0.0
+      resolved.x = []
     }
 
     if (msg.y !== undefined) {
       resolved.y = msg.y;
     }
     else {
-      resolved.y = 0.0
+      resolved.y = []
     }
 
     return resolved;
@@ -181,6 +184,6 @@ class xygoalResponse {
 module.exports = {
   Request: xygoalRequest,
   Response: xygoalResponse,
-  md5sum() { return 'd19ef5ce3bf2af44ecc2f565e73d87ee'; },
+  md5sum() { return '8cd126f9c228a58c5310ae0dba804564'; },
   datatype() { return 'stage/xygoal'; }
 };

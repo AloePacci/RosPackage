@@ -5,9 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /robot1
         - /robot1/Shape1
-        - /Marker1
+        - /Marker3
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -102,6 +101,22 @@ Visualization Manager:
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /rrt_gen_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /rrt_path_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /rrt_pos_marker
       Name: Marker
       Namespaces:
         {}

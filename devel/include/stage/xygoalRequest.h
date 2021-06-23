@@ -24,21 +24,21 @@ struct xygoalRequest_
   typedef xygoalRequest_<ContainerAllocator> Type;
 
   xygoalRequest_()
-    : x(0.0)
-    , y(0.0)  {
+    : x()
+    , y()  {
     }
   xygoalRequest_(const ContainerAllocator& _alloc)
-    : x(0.0)
-    , y(0.0)  {
+    : x(_alloc)
+    , y(_alloc)  {
   (void)_alloc;
     }
 
 
 
-   typedef float _x_type;
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _x_type;
   _x_type x;
 
-   typedef float _y_type;
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _y_type;
   _y_type y;
 
 
@@ -94,12 +94,12 @@ namespace message_traits
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::stage::xygoalRequest_<ContainerAllocator> >
-  : TrueType
+  : FalseType
   { };
 
 template <class ContainerAllocator>
 struct IsFixedSize< ::stage::xygoalRequest_<ContainerAllocator> const>
-  : TrueType
+  : FalseType
   { };
 
 template <class ContainerAllocator>
@@ -128,12 +128,12 @@ struct MD5Sum< ::stage::xygoalRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "ff8d7d66dd3e4b731ef14a45d38888b6";
+    return "462ac0ba687f22c2e73c0ec0413e0202";
   }
 
   static const char* value(const ::stage::xygoalRequest_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xff8d7d66dd3e4b73ULL;
-  static const uint64_t static_value2 = 0x1ef14a45d38888b6ULL;
+  static const uint64_t static_value1 = 0x462ac0ba687f22c2ULL;
+  static const uint64_t static_value2 = 0xe73c0ec0413e0202ULL;
 };
 
 template<class ContainerAllocator>
@@ -152,8 +152,8 @@ struct Definition< ::stage::xygoalRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float32 x\n"
-"float32 y\n"
+    return "float32[] x\n"
+"float32[] y\n"
 ;
   }
 
@@ -192,10 +192,18 @@ struct Printer< ::stage::xygoalRequest_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::stage::xygoalRequest_<ContainerAllocator>& v)
   {
-    s << indent << "x: ";
-    Printer<float>::stream(s, indent + "  ", v.x);
-    s << indent << "y: ";
-    Printer<float>::stream(s, indent + "  ", v.y);
+    s << indent << "x[]" << std::endl;
+    for (size_t i = 0; i < v.x.size(); ++i)
+    {
+      s << indent << "  x[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.x[i]);
+    }
+    s << indent << "y[]" << std::endl;
+    for (size_t i = 0; i < v.y.size(); ++i)
+    {
+      s << indent << "  y[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.y[i]);
+    }
   }
 };
 
