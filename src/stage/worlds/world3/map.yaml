@@ -1,0 +1,6 @@
+image: map.jpg
+resolution: 0.13799   #debe existir alguna forma de calcularlo, tras quebrarme la cabeza he usado regla de tres entre Rviz y stage_ros para calcularlo
+origin: [-63.5, -63.5, 0.0]    
+occupied_thresh: 0.4
+free_thresh: 0.2
+negate: 0

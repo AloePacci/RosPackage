@@ -19,6 +19,6 @@
   <node name="pure_pursuit_controller" pkg="stage" type="pure_pursuit_controller.py">
     <param name="lookahead" type="double" value="0.4"/>
     <param name="debug_level" type="int" value="3"/>
-    <param name="velocidad" type="double" value="0.2"/>
+    <param name="velocidad" type="double" value="0.5"/>
   </node>
 </launch>

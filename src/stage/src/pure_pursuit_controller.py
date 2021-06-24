@@ -3,7 +3,7 @@ import rospy
 from geometry_msgs.msg import Twist, Point
 from turtlesim.msg import Pose
 from nav_msgs.msg import Odometry
-from math import pow, atan2, sqrt, atan, cos, sin
+from math import pow, atan2, sqrt, atan, cos, sin, tan
 import tf.transformations
 from stage.srv import xygoal
 from visualization_msgs.msg import Marker
@@ -87,11 +87,12 @@ class Robot:
         #transformamos a los ejes del robot
         x=recta.x-self.pose.x
         y=recta.y-self.pose.y
-        m=atan(recta.theta) #pendiente de la recta
+        m=tan(recta.theta) #pendiente de la recta
         b=y-m*x #corte al eje x de la recta
         self.punto_mas_cercano.x=-b/(m+1/m) #x del punto mas cercano al robot
         self.punto_mas_cercano.y=m*self.punto_mas_cercano.x+b
-        distancia_recta=sqrt(pow(self.punto_mas_cercano.x,2)+pow(self.punto_mas_cercano.y,2)) #este numero es siempre positivo, cuando queramos girar hacia el otro
+        distancia_recta=sqrt(pow(self.punto_mas_cercano.x,2)+pow(self.punto_mas_cercano.y,2)) #este numero es siempre positivo
+        #print([x,y, "obj", self.punto_mas_cercano.x, self.punto_mas_cercano.y])
         return distancia_recta
 
     def find_recta(self):
@@ -103,25 +104,26 @@ class Robot:
         return angle
         
     def calcular_giro(self,recta):
+        x=recta.x-self.pose.x
+        y=recta.y-self.pose.y
         a=sqrt(pow(self.punto_mas_cercano.x,2)+pow(self.punto_mas_cercano.y,2))
         d=sqrt(pow(distancia_lookahead,2)-pow(a,2)) # en el if que llama a esta funcion se comprueba que distancia_lookahead>a en magnitud
         objetivo=Point()
         objetivo.x=self.punto_mas_cercano.x+d*cos(recta.theta)
         objetivo.y=self.punto_mas_cercano.y+d*sin(recta.theta)
+        if (pow(x-objetivo.x,2)+pow(y-objetivo.y,2))>=(pow(x-self.punto_mas_cercano.x,2)+pow(y-self.punto_mas_cercano.y,2)): #si el punto mas cercano esta mas cerca, es que el objetivo es en el otro sentido
+            objetivo.x=self.punto_mas_cercano.x-d*cos(recta.theta)
+            objetivo.y=self.punto_mas_cercano.y-d*sin(recta.theta)
         objetivo.z=atan2(objetivo.y,objetivo.x)
-
         #transformamos a los ejes del robot
 
-        distancia_x=distancia_lookahead*cos(self.pose.theta-objetivo.z)
-        distancia_y=distancia_lookahead*sin(self.pose.theta-objetivo.z)
-
+        distancia_x=sqrt(pow(objetivo.x,2)+pow(objetivo.y,2))*sin(self.pose.theta-objetivo.z)
+        #print(objetivo.z, self.pose.theta, distancia_x)
         #por geometria
+        #print(["objetivo", objetivo.x, objetivo.y, "distancia", distancia_x, "theta", self.pose.theta])
 
         
-        if self.pose.theta-objetivo.z >= 0:
-            curbatura= -2*distancia_x/pow(distancia_lookahead,2)
-        else:
-            curbatura= 2*distancia_x/pow(distancia_lookahead,2) #negativo porque el giro debe ser a la derecha (negativo)
+        curbatura= -2*distancia_x/pow(distancia_lookahead,2) #negativo porque el giro debe ser a la derecha (negativo)
 
         return curbatura
 
@@ -136,16 +138,14 @@ class Robot:
         self.lp.y=self.pose.y
         self.lp.z=0.5
         for pos in self.path: #recorremos todos los puntos
-            print("nuevo punto")
+            #print("nuevo punto")
             while self.distancia(pos) >= distancia_lookahead: #mientras no lleguemos al punto objetivo con la distancia lookahead
                 distancia_recta=self.distancia_recta(pos)
                 if distancia_recta > distancia_lookahead:#estamos muy lejos, hay que rectificar, un control proporcional para volver a la recta            
                     angulo=self.find_recta()
-                    print(["rectifica", angulo])
+                    #print(["rectifica", angulo,self.pose.theta, "recta", self.punto_mas_cercano.x, self.punto_mas_cercano.y, "goal", pos.x, pos.y])
                 else:
-                    angulo=self.calcular_giro(pos)
-                    print([angulo])
-                
+                    angulo=self.calcular_giro(pos)                
                 
                 vel_msg.linear.x = velocidad
                 vel_msg.linear.y = 0
